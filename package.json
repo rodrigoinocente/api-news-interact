@@ -1,11 +1,13 @@
 {
   "name": "api-news-interact",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "server.js",
   "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
     "@types/cors": "^2.8.17",
     "@types/dotenv": "^6.1.1",
     "@types/express": "^5.0.0",
+    "@types/mongoose": "^5.11.96",
     "typescript": "^5.6.3"
   },
   "scripts": {
@@ -19,9 +21,11 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
+    "mongoose": "^8.8.1",
     "ts-node-dev": "^2.0.0"
   }
 }
