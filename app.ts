@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import * as dotenv from "dotenv";
+import router from "./src/routes";
 
 dotenv.config();
 
@@ -14,5 +15,7 @@ app.use(
         allowedHeaders: ["Content-Type", "Authorization"]
     })
 );
+
+app.use(router)
 
 export default app;
