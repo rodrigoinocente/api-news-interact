@@ -11,7 +11,7 @@ const loginService = async (email: string, password: string) => {
 
         const token = authRepositories.generateToken(user._id);
 
-      return token;
+      return {user, token};
 };
 
 export default { loginService };
