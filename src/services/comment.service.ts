@@ -45,7 +45,21 @@ const getPaginatedCommentsService = async (newsId: Types.ObjectId, limit: number
     });
 };
 
+const deleteCommentService = async (dataCommentId: Types.ObjectId, commentId: Types.ObjectId, userId: Types.ObjectId): Promise<void> => {
+    const comment: ICommentNews | null = await commentRepositories.findCommentByIdRepositories(dataCommentId, commentId)
+    if (!comment)
+        throw new Error("Comment not found");
+
+    if (comment.comment[0].userId.toString() !== userId.toString())
+        throw new Error("You can't delete this comment")
+
+    const commentDelete = await commentRepositories.deleteCommentRepositories(dataCommentId, commentId)
+    if (!commentDelete)
+        throw new Error("Failed to delete comment")
+};
+
 export default {
     addCommentService,
-    getPaginatedCommentsService
+    getPaginatedCommentsService,
+    deleteCommentService
 }

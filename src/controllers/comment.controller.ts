@@ -46,7 +46,32 @@ const getPaginatedComments = async (req: Request, res: Response): Promise<Respon
     };
 };
 
+const deleteComment = async (req: Request, res: Response): Promise<Response | any> => {
+    try {
+        const dataCommentId = res.locals.dataCommentId;
+        const commentId = res.locals.commentId;
+        const userId = res.locals.userLoggedId
+
+        await commentService.deleteCommentService(dataCommentId, commentId, userId);
+        res.status(200).send({
+            message: "Comment successfully removed"
+        });
+    } catch (err: any) {
+        if (err.message === "Comment not found")
+            return res.status(204).send();
+
+        if (err.message === "You can't delete this comment")
+            return res.status(403).send({ message: err.message });
+
+        if (err.message === "Failed to delete comment")
+            return res.status(500).send({ message: "An unexpected error occurred" });
+
+        return res.status(500).send({ message: "An unexpected error occurred" });
+    };
+};
+
 export default {
     addComment,
-    getPaginatedComments
+    getPaginatedComments,
+    deleteComment
 }

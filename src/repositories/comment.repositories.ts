@@ -1,4 +1,4 @@
-import { Types } from "mongoose";
+import { Types, UpdateWriteOpResult } from "mongoose";
 import { ICommentNews } from "../../custom";
 import { CommentModel } from "../database/db";
 
@@ -56,10 +56,19 @@ const totalCommentsRepositories = (newsId: Types.ObjectId) => {
         { $project: { _id: 0, commentCount: { $size: "$comment", }, }, },
     ])
 }
+
+const findCommentByIdRepositories = (dataCommentId: Types.ObjectId, commentId: Types.ObjectId): Promise<ICommentNews | null> =>
+    CommentModel.findOne({ _id: dataCommentId, "comment._id": commentId }, { "comment.$": 1 });
+
+const deleteCommentRepositories = (dataCommentId: Types.ObjectId, commentId: Types.ObjectId): Promise<UpdateWriteOpResult | null> =>
+    CommentModel.updateMany({ _id: dataCommentId }, { $pull: { comment: { _id: commentId } } });
+
 export default {
     createCommentDataRepositories,
     findCommentsByNewsId,
     upDateCommentDataRepositories,
     commentsPipelineRepositories,
-    totalCommentsRepositories
+    totalCommentsRepositories,
+    findCommentByIdRepositories,
+    deleteCommentRepositories
 }
