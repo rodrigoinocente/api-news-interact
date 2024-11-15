@@ -6,7 +6,7 @@ export interface IUser {
   username: string;
   email: string;
   password: string;
-}
+};
 
 export interface ICommentNews {
   _id: Types.ObjectId;
@@ -14,7 +14,7 @@ export interface ICommentNews {
   comment: IComment[];
 };
 
-interface ICommen {
+interface IComment {
   newsId: Types.ObjectId;
   userId: Types.ObjectId;
   content: string;
@@ -23,4 +23,4 @@ interface ICommen {
   likeCount: number;
   replyCount: number;
   createdAt: Date;
-}
+};
