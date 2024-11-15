@@ -24,3 +24,11 @@ interface IComment {
   replyCount: number;
   createdAt: Date;
 };
+
+interface Paginated {
+  nextUrl: string | null;
+  previousUrl: string | null;
+  offset: number;
+  total: number;
+  comments?: ICommentNews[];
+}
