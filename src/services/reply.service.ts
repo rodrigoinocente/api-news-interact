@@ -58,8 +58,23 @@ const getPaginatedReplyService = async (dataCommentId: Types.ObjectId, commentId
     })
 };
 
+const deleteReplyService = async (dataReplyId: Types.ObjectId, replyId: Types.ObjectId, userId: Types.ObjectId): Promise<void> => {
+    const reply: IReplyComment | null = await replyRepositories.findReplyByIdRepositories(dataReplyId, replyId);
+    if (!reply)
+        throw new Error("Reply not found")
+
+    if (String(reply.reply[0].userId) !== String(userId))
+        throw new Error("You can't delete this reply")
+
+    const replyDeleted = await replyRepositories.deleteReplyCommentRepositories(dataReplyId, replyId);
+    if (!replyDeleted)
+        throw new Error("Failed to delete reply")
+
+};
+
 
 export default {
     addReplyCommentService,
-    getPaginatedReplyService
+    getPaginatedReplyService,
+    deleteReplyService
 }

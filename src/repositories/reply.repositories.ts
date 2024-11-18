@@ -1,4 +1,4 @@
-import { Types } from "mongoose";
+import { Types, UpdateWriteOpResult } from "mongoose";
 import { ICommentNews, IReplyComment } from "../../custom";
 import { CommentModel, ReplyCommentModel } from "../database/db";
 
@@ -47,10 +47,17 @@ const replyCommentsPipelineRepositories = (dataReplyCommentId: Types.ObjectId, o
     );
 };
 
+const findReplyByIdRepositories = (dataReplyId: Types.ObjectId, replyId: Types.ObjectId): Promise<IReplyComment | null> =>
+    ReplyCommentModel.findOne({ _id: dataReplyId, "reply._id": replyId }, { "reply.$": 1 })
+
+const deleteReplyCommentRepositories = (dataReplyId: Types.ObjectId, replyId: Types.ObjectId): Promise<UpdateWriteOpResult | void> =>
+    ReplyCommentModel.updateMany({ _id: dataReplyId }, { $pull: { reply: { _id: replyId } } });
 
 export default {
     createReplyCommentDataRepositories,
     updateCommentDataReplyRepositories,
     addReplyCommentDataRepositories,
-    replyCommentsPipelineRepositories
+    replyCommentsPipelineRepositories,
+    findReplyByIdRepositories,
+    deleteReplyCommentRepositories
 }

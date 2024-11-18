@@ -6,5 +6,6 @@ const route = Router();
 
 route.post("/:dataCommentId/:commentId", authMiddleware, validateAndConvertIds, replyController.addReplyComment);
 route.get("/replyPage/:dataCommentId/:commentId", authMiddleware, validateAndConvertIds, replyController.getPaginatedReply);
+route.delete("/deleteReply/:dataReplyId/:replyId", authMiddleware, validateAndConvertIds, replyController.deleteReply);
 
 export default route;

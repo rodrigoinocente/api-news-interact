@@ -60,7 +60,31 @@ const getPaginatedReply = async (req: Request, res: Response): Promise<Response 
     };
 };
 
+const deleteReply = async (req: Request, res: Response): Promise<Response | any> => {
+    try {
+        const dataReplyId = res.locals.dataReplyId;
+        const replyId = res.locals.replyId;
+        const userId = res.locals.userLoggedId;
+
+        await replyService.deleteReplyService(dataReplyId, replyId, userId);
+
+        res.status(200).send({ message: "Reply successfully removed" });
+    } catch (err: any) {
+        if (err.message === "Reply not found")
+            return res.status(204).send();
+
+        if (err.message === "You can't delete this reply")
+            return res.status(403).send({ message: err.message });
+
+        if (err.message === "Failed to delete reply")
+            return res.status(500).send({ message: "An unexpected error occurred" });
+
+        return res.status(500).send({ message: "An unexpected error occurred" });
+    };
+};
+
 export default {
     addReplyComment,
-    getPaginatedReply
+    getPaginatedReply,
+    deleteReply
 }
