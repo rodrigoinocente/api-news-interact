@@ -21,7 +21,6 @@ const addReplyCommentService = async (dataCommentId: Types.ObjectId, commentId: 
         return newDataReply;
     } else {
         const newReply = await replyRepositories.addReplyCommentDataRepositories(commentDataReplyId, userId, content);
-        console.log("newReply: ", newReply);
         if (!newReply) throw new Error("Failed to add response")
 
         return newReply;
@@ -37,11 +36,12 @@ const getPaginatedReplyService = async (dataCommentId: Types.ObjectId, commentId
     const total: number = comment.comment[0].replyCount;
 
     const replies: IReplyComment[] = await replyRepositories.replyCommentsPipelineRepositories(dataReplyId, offset, limit);
+    console.log("replies: ", replies);
     if (!replies)
         throw new Error("Failed to retrieve replies")
-    if (replies.length === 0){
-        console.log("PASSOU AQUI");
-        throw new Error("There are no registered replies");}
+    if (replies.length === 0) {
+        throw new Error("There are no registered replies");
+    }
 
     const next = offset + limit;
     const nextUrl = next < total ? `${currentUrl}/replyPage/${dataCommentId}/${commentId}?limit=${limit}&offset=${next}` : null;
@@ -72,9 +72,43 @@ const deleteReplyService = async (dataReplyId: Types.ObjectId, replyId: Types.Ob
 
 };
 
+const likeReplyService = async (dataReplyId: Types.ObjectId, replyId: Types.ObjectId, userId: Types.ObjectId): Promise<boolean> => {
+    const reply = await replyRepositories.findReplyByIdRepositories(dataReplyId, replyId);
+    if (!reply) throw new Error("Reply not found")
+
+    const replyDataLikeId = reply.reply[0].dataLikeId;
+    if (!replyDataLikeId) {
+        const newDataLike = await replyRepositories.createLikeReplyDataRepositories(dataReplyId, replyId, userId);
+        if (!newDataLike) throw new Error("An unexpected error occurred");
+
+        const updateReplyDataLike = await replyRepositories.updateReplyDataLikeRepositories(dataReplyId, replyId, newDataLike._id);
+        if (!updateReplyDataLike) throw new Error("An unexpected error occurred");
+
+        return await checkLikeReply(newDataLike._id, userId);
+    }
+
+    const isLiked = await checkLikeReply(replyDataLikeId, userId);
+    if (!isLiked) {
+        await replyRepositories.likeReplyRepositories(replyDataLikeId, userId);
+
+        return await checkLikeReply(replyDataLikeId, userId);
+    } else {
+        await replyRepositories.deleteLikeReplyRepositories(replyDataLikeId, userId);
+
+        return await checkLikeReply(replyDataLikeId, userId);
+    }
+};
+
+const checkLikeReply = async (commentDataLike: Types.ObjectId, userId: Types.ObjectId): Promise<boolean> => {
+    const checkLike = await replyRepositories.isUserInLikeReplyArray(commentDataLike, userId)
+    if (checkLike) return true
+    else return false
+};
+
 
 export default {
     addReplyCommentService,
     getPaginatedReplyService,
-    deleteReplyService
+    deleteReplyService,
+    likeReplyService
 }

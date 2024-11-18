@@ -1,6 +1,6 @@
 import { Types, UpdateWriteOpResult } from "mongoose";
-import { ICommentNews, IReplyComment } from "../../custom";
-import { CommentModel, ReplyCommentModel } from "../database/db";
+import { ICommentNews, ILikeReply, IReplyComment } from "../../custom";
+import { CommentModel, LikeReplyModel, ReplyCommentModel } from "../database/db";
 
 const createReplyCommentDataRepositories = (
     dataCommentId: Types.ObjectId, commentId: Types.ObjectId, userId: Types.ObjectId, content: string): Promise<IReplyComment | null> =>
@@ -53,11 +53,32 @@ const findReplyByIdRepositories = (dataReplyId: Types.ObjectId, replyId: Types.O
 const deleteReplyCommentRepositories = (dataReplyId: Types.ObjectId, replyId: Types.ObjectId): Promise<UpdateWriteOpResult | void> =>
     ReplyCommentModel.updateMany({ _id: dataReplyId }, { $pull: { reply: { _id: replyId } } });
 
+const createLikeReplyDataRepositories = async (
+    dataReplyCommentId: Types.ObjectId, replyCommentId: Types.ObjectId, userId: Types.ObjectId): Promise<ILikeReply | null> =>
+    LikeReplyModel.create({ dataReplyCommentId, replyCommentId, likes: { userId } });
+
+const updateReplyDataLikeRepositories = (dataReplyCommentId: Types.ObjectId, replyCommentId: Types.ObjectId, dataLikeId: Types.ObjectId) =>
+    ReplyCommentModel.findOneAndUpdate({ _id: dataReplyCommentId, "reply._id": replyCommentId }, { $set: { "reply.$.dataLikeId": dataLikeId } });
+
+const isUserInLikeReplyArray = (replyDataLikeId: Types.ObjectId, userId: Types.ObjectId): Promise<object | null> =>
+    LikeReplyModel.exists({ _id: replyDataLikeId, "likes.userId": [userId] });
+
+const likeReplyRepositories = (replyDataLikeId: Types.ObjectId, userId: Types.ObjectId): Promise<ILikeReply | null> =>
+    LikeReplyModel.findOneAndUpdate({ _id: replyDataLikeId }, { $push: { likes: { userId } } });
+
+const deleteLikeReplyRepositories = (replyDataLikeId: Types.ObjectId, userId: Types.ObjectId): Promise<ILikeReply | null> =>
+    LikeReplyModel.findOneAndUpdate({ _id: replyDataLikeId }, { $pull: { likes: { userId } } });
+
 export default {
     createReplyCommentDataRepositories,
     updateCommentDataReplyRepositories,
     addReplyCommentDataRepositories,
     replyCommentsPipelineRepositories,
     findReplyByIdRepositories,
-    deleteReplyCommentRepositories
+    deleteReplyCommentRepositories,
+    createLikeReplyDataRepositories,
+    updateReplyDataLikeRepositories,
+    isUserInLikeReplyArray,
+    likeReplyRepositories,
+    deleteLikeReplyRepositories
 }

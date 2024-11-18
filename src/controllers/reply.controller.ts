@@ -83,8 +83,30 @@ const deleteReply = async (req: Request, res: Response): Promise<Response | any>
     };
 };
 
+const likeReply = async (req: Request, res: Response): Promise<Response | any> => {
+    try {
+        const dataReplyId = res.locals.dataReplyId;
+        const replyId = res.locals.replyId;
+        const userId = res.locals.userLoggedId;
+
+        const isLike = await replyService.likeReplyService(dataReplyId, replyId, userId);
+
+        return res.status(200).send(isLike);
+
+    } catch (err: any) {
+        if (err.message === "Reply not found")
+            return res.status(204).send();
+
+        if (err.message === "An unexpected error occurred")
+            return res.status(500).send({ message: err.message });
+
+        return res.status(500).send({ message: "An unexpected error occurred" });
+    };
+};
+
 export default {
     addReplyComment,
     getPaginatedReply,
-    deleteReply
+    deleteReply,
+    likeReply
 }
