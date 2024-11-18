@@ -56,3 +56,10 @@ interface Like {
   userId: Types.ObjectId;
   createdAt: Date;
 };
+
+export interface IReplyComment {
+  _id: Types.ObjectId;
+  dataCommentId: Types.ObjectId;
+  commentId: Types.ObjectId;
+  reply: Reply[];
+};
