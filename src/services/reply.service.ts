@@ -36,7 +36,6 @@ const getPaginatedReplyService = async (dataCommentId: Types.ObjectId, commentId
     const total: number = comment.comment[0].replyCount;
 
     const replies: IReplyComment[] = await replyRepositories.replyCommentsPipelineRepositories(dataReplyId, offset, limit);
-    console.log("replies: ", replies);
     if (!replies)
         throw new Error("Failed to retrieve replies")
     if (replies.length === 0) {

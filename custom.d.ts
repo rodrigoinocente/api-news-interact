@@ -64,3 +64,11 @@ export interface IReplyComment {
   commentId: Types.ObjectId;
   reply: Reply[];
 };
+
+export interface IUpdateTypeReply {
+  $pull?: {
+    reply?: {
+      _id: string;
+    };
+  };
+};
