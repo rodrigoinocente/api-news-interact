@@ -70,8 +70,29 @@ const deleteComment = async (req: Request, res: Response): Promise<Response | an
     };
 };
 
+const likeComment = async (req: Request, res: Response): Promise<Response | any> => {
+    try {
+        const dataCommentId = res.locals.dataCommentId;
+        const commentId = res.locals.commentId;
+        const userId = res.locals.userLoggedId;
+
+        const isLiked = await commentService.likeCommentService(dataCommentId, commentId, userId);
+
+        res.status(200).send(isLiked);
+    } catch (err: any) {
+        if (err.message === "Comment not found")
+            return res.status(204).send();
+
+        if (err.message === "An unexpected error occurred")
+            return res.status(500).send({ message: err.message });
+
+        return res.status(500).send({ message: "An unexpected error occurred" });
+    };
+};
+
 export default {
     addComment,
     getPaginatedComments,
-    deleteComment
+    deleteComment,
+    likeComment
 }

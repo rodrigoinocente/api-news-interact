@@ -27,8 +27,8 @@ const getPaginatedCommentsService = async (newsId: Types.ObjectId, limit: number
         throw new Error("There are no registered comments")
 
     const totalComments = await commentRepositories.totalCommentsRepositories(newsId)
-    if (totalComments) total = totalComments[0].commentCount 
-    else  total = 10000 
+    if (totalComments) total = totalComments[0].commentCount
+    else total = 10000
 
     const next = offset + limit;
     const nextUrl = next < total ? `${currentUrl}/commentPage/${newsId}?limit=${limit}&offset=${next}` : null;
@@ -58,8 +58,42 @@ const deleteCommentService = async (dataCommentId: Types.ObjectId, commentId: Ty
         throw new Error("Failed to delete comment")
 };
 
+const likeCommentService = async (dataCommentId: Types.ObjectId, commentId: Types.ObjectId, userId: Types.ObjectId): Promise<boolean> => {
+    const comment = await commentRepositories.findCommentByIdRepositories(dataCommentId, commentId);
+    if (!comment) throw new Error("Comment not found")
+
+    const commentDataLikeId = comment.comment[0].dataLikeId;
+    if (!commentDataLikeId) {
+        const newDataLike = await commentRepositories.createLikeCommentDataRepositories(dataCommentId, commentId, userId);
+        if (!newDataLike) throw new Error("An unexpected error occurred");
+
+        const updateCommentDataLikeId = await commentRepositories.updateCommentDataLikeId(dataCommentId, commentId, newDataLike._id)
+        if (!updateCommentDataLikeId) throw new Error("An unexpected error occurred");
+
+        return await checkLikeComment(newDataLike._id, userId);
+    }
+
+    const isLiked = await commentRepositories.isUserInLikeCommentArray(commentDataLikeId, userId);
+    if (!isLiked) {
+        await commentRepositories.likeCommentRepositories(commentDataLikeId, userId);
+
+        return await checkLikeComment(commentDataLikeId, userId);
+    } else {
+        await commentRepositories.deleteLikeCommentRepositories(commentDataLikeId, userId);
+
+        return await checkLikeComment(commentDataLikeId, userId);
+    }
+};
+
+const checkLikeComment = async (commentDataLike: Types.ObjectId, userId: Types.ObjectId): Promise<boolean> => {
+    const checkLike = await commentRepositories.isUserInLikeCommentArray(commentDataLike, userId)
+    if (checkLike) return true
+    else return false
+};
+
 export default {
     addCommentService,
     getPaginatedCommentsService,
-    deleteCommentService
+    deleteCommentService,
+    likeCommentService
 }

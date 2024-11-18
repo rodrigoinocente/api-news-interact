@@ -1,6 +1,6 @@
 import { Types, UpdateWriteOpResult } from "mongoose";
-import { ICommentNews } from "../../custom";
-import { CommentModel } from "../database/db";
+import { ICommentNews, ILikeComment } from "../../custom";
+import { CommentModel, LikeCommentModel } from "../database/db";
 
 const findCommentsByNewsId = (newsId: Types.ObjectId): Promise<ICommentNews[] | []> => {
     return CommentModel.aggregate([
@@ -63,6 +63,21 @@ const findCommentByIdRepositories = (dataCommentId: Types.ObjectId, commentId: T
 const deleteCommentRepositories = (dataCommentId: Types.ObjectId, commentId: Types.ObjectId): Promise<UpdateWriteOpResult | null> =>
     CommentModel.updateMany({ _id: dataCommentId }, { $pull: { comment: { _id: commentId } } });
 
+const createLikeCommentDataRepositories = (dataCommentId: Types.ObjectId, commentId: Types.ObjectId, userId: Types.ObjectId): Promise<ILikeComment | null> =>
+    LikeCommentModel.create({ dataCommentId, commentId, likes: { userId } });
+
+const updateCommentDataLikeId = (dataCommentId: Types.ObjectId, commentId: Types.ObjectId, dataLikeCommentId: Types.ObjectId): Promise<ICommentNews | null> =>
+    CommentModel.findOneAndUpdate({ _id: dataCommentId, "comment._id": commentId }, { $set: { "comment.$.dataLikeId": dataLikeCommentId } });
+
+const isUserInLikeCommentArray = (dataLikeCommentId: Types.ObjectId, userId: Types.ObjectId): Promise<object | null> =>
+    LikeCommentModel.exists({ _id: dataLikeCommentId, "likes.userId": [userId] });
+
+const likeCommentRepositories = (dataLikeCommentId: Types.ObjectId, userId: Types.ObjectId): Promise<ILikeComment | null> => LikeCommentModel.findOneAndUpdate(
+    { _id: dataLikeCommentId }, { $push: { likes: { userId } } }, { select: "_id" });
+
+const deleteLikeCommentRepositories = (dataLikeCommentId: Types.ObjectId, userId: Types.ObjectId): Promise<ILikeComment | null> =>
+    LikeCommentModel.findOneAndUpdate({ _id: dataLikeCommentId }, { $pull: { likes: { userId } } }, { select: "_id" });
+
 export default {
     createCommentDataRepositories,
     findCommentsByNewsId,
@@ -70,5 +85,10 @@ export default {
     commentsPipelineRepositories,
     totalCommentsRepositories,
     findCommentByIdRepositories,
-    deleteCommentRepositories
+    deleteCommentRepositories,
+    createLikeCommentDataRepositories,
+    updateCommentDataLikeId,
+    isUserInLikeCommentArray,
+    likeCommentRepositories,
+    deleteLikeCommentRepositories
 }

@@ -31,4 +31,28 @@ interface Paginated {
   offset: number;
   total: number;
   comments?: ICommentNews[];
-}
+};
+
+export interface ILikeReply {
+  _id: Types.ObjectId;
+  dataReplyCommentId: Types.ObjectId;
+  replyCommentId: Types.ObjectId;
+  likes: Like[];
+};
+
+interface Like {
+  userId: Types.ObjectId;
+  createdAt: Date;
+};
+
+export interface ILikeComment {
+  _id: Types.ObjectId;
+  dataCommentId: Types.ObjectId;
+  commentId: Types.ObjectId;
+  likes: Like[];
+};
+
+interface Like {
+  userId: Types.ObjectId;
+  createdAt: Date;
+};
