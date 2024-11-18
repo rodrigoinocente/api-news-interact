@@ -5,5 +5,6 @@ import replyController from "../controllers/reply.controller";
 const route = Router();
 
 route.post("/:dataCommentId/:commentId", authMiddleware, validateAndConvertIds, replyController.addReplyComment);
+route.get("/replyPage/:dataCommentId/:commentId", authMiddleware, validateAndConvertIds, replyController.getPaginatedReply);
 
 export default route;

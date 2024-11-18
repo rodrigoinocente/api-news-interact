@@ -28,6 +28,39 @@ const addReplyComment = async (req: Request, res: Response): Promise<Response | 
     };
 };
 
+const getPaginatedReply = async (req: Request, res: Response): Promise<Response | any> => {
+    try {
+        const dataCommentId = res.locals.dataCommentId;
+        const commentId = res.locals.commentId;
+        let limit = req.query.limit ? Number(req.query.limit) : 10;
+        let offset = req.query.offset ? Number(req.query.offset) : 0;
+        const currentUrl = req.baseUrl;
+
+        const { nextUrl, previousUrl, total, replies } = await replyService.getPaginatedReplyService(dataCommentId, commentId, limit, offset, currentUrl)
+
+        res.status(200).send({
+            nextUrl,
+            previousUrl,
+            limit,
+            offset,
+            total,
+            replies
+        });
+    } catch (err: any) {
+        if (err.message === "Comment not found")
+            return res.status(204).send();
+
+        if (err.message === "Failed to retrieve replies")
+            return res.status(500).send({ message: err.message });
+
+        if (err.message === "There are no registered replies")
+            return res.status(404).send({ message: err.message });
+
+        return res.status(500).send({ message: "An unexpected error occurred" });
+    };
+};
+
 export default {
-    addReplyComment
+    addReplyComment,
+    getPaginatedReply
 }

@@ -31,6 +31,7 @@ interface Paginated {
   offset: number;
   total: number;
   comments?: ICommentNews[];
+  replies?: IReplyComment[];
 };
 
 export interface ILikeReply {

@@ -28,6 +28,38 @@ const addReplyCommentService = async (dataCommentId: Types.ObjectId, commentId: 
     }
 };
 
+const getPaginatedReplyService = async (dataCommentId: Types.ObjectId, commentId: Types.ObjectId, limit: number, offset: number, currentUrl: string): Promise<Paginated> => {
+    const comment: ICommentNews | null = await commentRepositories.findCommentByIdRepositories(dataCommentId, commentId)
+    if (!comment)
+        throw new Error("Comment not found");
+
+    const dataReplyId = comment.comment[0].dataReplyId;
+    const total: number = comment.comment[0].replyCount;
+
+    const replies: IReplyComment[] = await replyRepositories.replyCommentsPipelineRepositories(dataReplyId, offset, limit);
+    if (!replies)
+        throw new Error("Failed to retrieve replies")
+    if (replies.length === 0){
+        console.log("PASSOU AQUI");
+        throw new Error("There are no registered replies");}
+
+    const next = offset + limit;
+    const nextUrl = next < total ? `${currentUrl}/replyPage/${dataCommentId}/${commentId}?limit=${limit}&offset=${next}` : null;
+
+    const previous = offset - limit < 0 ? null : offset - limit;
+    const previousUrl = previous != null ? `${currentUrl}/replyPage/${dataCommentId}/${commentId}?limit=${limit}&offset=${previous}` : null;
+
+    return ({
+        nextUrl,
+        previousUrl,
+        offset,
+        total,
+        replies
+    })
+};
+
+
 export default {
-    addReplyCommentService
+    addReplyCommentService,
+    getPaginatedReplyService
 }
