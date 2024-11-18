@@ -72,3 +72,11 @@ export interface IUpdateTypeReply {
     };
   };
 };
+
+export interface IUpdateTypeComment {
+  $pull?: {
+    comment?: {
+      _id: string;
+    };
+  };
+};

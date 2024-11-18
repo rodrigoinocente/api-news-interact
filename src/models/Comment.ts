@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
-import { ICommentNews } from "../../custom";
+import { ICommentNews, IUpdateTypeComment } from "../../custom";
+import commentRepositories from "../repositories/comment.repositories";
+import { LikeCommentModel, LikeReplyModel, ReplyCommentModel } from "../database/db";
 
 const CommentSchema = new mongoose.Schema<ICommentNews>({
   newsId: {
@@ -45,6 +47,29 @@ const CommentSchema = new mongoose.Schema<ICommentNews>({
       },
     ],
   },
+});
+
+CommentSchema.pre("updateMany", async function (next) {
+  const { _id: dataCommentId } = this.getQuery();
+  const getCommentId = this.getUpdate() as IUpdateTypeComment | null;
+  if (getCommentId?.$pull?.comment) {
+    const { $pull: { comment: { _id: commentId } } } = getCommentId;
+    
+    const comment: ICommentNews | null = await commentRepositories.findCommentByIdRepositories(dataCommentId, new mongoose.Types.ObjectId(commentId));
+    if (comment) {
+      if (comment.comment[0].dataLikeId) await LikeCommentModel.deleteOne(comment.comment[0].dataLikeId);
+      if (comment.comment[0].dataReplyId) {
+        const replies = await ReplyCommentModel.findById(comment.comment[0].dataReplyId);
+        if (replies) {
+          for (const reply of replies.reply)
+            if (reply.dataLikeId) await LikeReplyModel.deleteOne(reply.dataLikeId);
+
+          await ReplyCommentModel.deleteOne(comment.comment[0].dataReplyId);
+        }
+      }
+    }
+  }
+  next();
 });
 
 export default CommentSchema;
