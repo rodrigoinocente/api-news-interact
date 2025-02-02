@@ -53,7 +53,23 @@ const update = async (req: Request, res: Response): Promise<Response | any> => {
     };
 };
 
+const getLoggedInUser = async (req: Request, res: Response): Promise<Response | any> => {
+    const userLoggedId = res.locals.userLoggedId;
+
+    try {
+        const user = await userService.findByIdService(userLoggedId);
+
+        return res.status(200).send(user);
+    } catch (err: any) {
+        if (err.message === "User not found by id")
+            return res.status(404).send({ message: err.message });
+
+        return res.status(500).send({ message: "An unexpected error occurred" });
+    };
+};
+
 export default {
     createUser,
-    update
+    update,
+    getLoggedInUser
 }

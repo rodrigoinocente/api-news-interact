@@ -1,0 +1,2329 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": " Api News Documentation",
+    "description": "In this documentation, you will be able to consult the API endpoints and test all available routes.</br>Please remember to register and complete the authorization process.</br>[GitHub repository](https://github.com/rodrigoinocente/api-news-full)",
+    "contact": {
+      "emai": "ridrigocorreia@gmail.com"
+    },
+    "version": "2.1.0"
+  },
+  "servers": [
+    {
+      "url": "https://api-news-pzgk.onrender.com",
+      "description": "Render Server"
+    },
+    {
+      "url": "http://localhost:3000",
+      "description": "Local Server"
+    }
+  ],
+  "paths": {
+    "/user/": {
+      "post": {
+        "summary": "Create a new user",
+        "description": "Route responsible for creating a new user. The email provided must be unique in the database.",
+        "tags": ["Users"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/User"
+              },
+              "examples": {
+                "Users": {
+                  "value": {
+                    "name": "Gilmar Alves",
+                    "username": "@gilmar",
+                    "email": "gilmar@email.com",
+                    "password": "123456"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "400": {
+            "description": "Bad Request - Missing Required Fields",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "$ref": "#/components/schemas/Message"
+                },
+                "example": {
+                  "message": "Submit all fields for registration"
+                }
+              }
+            }
+          },
+          "400-": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "$ref": "#/components/schemas/Message"
+                },
+                "example": {
+                  "message": "The provided email is already in use"
+                }
+              }
+            }
+          },
+          "500-": {
+            "description": "Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "$ref": "#/components/schemas/Message"
+                },
+                "example": {
+                  "message": "Error creating User"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "$ref": "#/components/schemas/Unexpected-Error"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "User created successfully"
+                    },
+                    "user": {
+                      "$ref": "#/components/schemas/User"
+                    },
+                    "token": {
+                      "type": "string",
+                      "description": "Token for user validation",
+                      "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/": {
+      "post": {
+        "summary": "Login to API News",
+        "description": "Route responsible for logging in a registered user. Use the Token value in Authorize to use all API resources.",
+        "tags": ["Auth"],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/User"
+              },
+              "examples": {
+                "User": {
+                  "value": {
+                    "email": "gilmar@email.com",
+                    "password": "123456"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "500": {
+            "description": "Unexpected Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "$ref": "#/components/schemas/Unexpected-Error"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error: Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "$ref": "#/components/schemas/Message"
+                },
+                "example": {
+                  "message": "Email or Password not found"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Token generated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "token": {
+                      "type": "string",
+                      "description": "Token for user validation"
+                    }
+                  }
+                },
+                "example": {
+                  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2OGM5ODU1MWE4NDkzNjkyMzk0ZGNhMSIsImlhdCI6MTcyMDQ5MDg5NywiZXhwIjoxNzIwNTc3Mjk3fQ.1hiiWOXtNNCzdUXSM4ZbY0EmSkf685yivH9I-MG6C6U"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/{id}/": {
+      "patch": {
+        "summary": "Update user by ID",
+        "description": "Route responsible for editing the user by ID.",
+        "tags": ["Users"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "type": "string",
+            "description": "User ID",
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/User"
+              },
+              "examples": {
+                "Users": {
+                  "value": {
+                    "name": "Gilmar Alves Rocha"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "400": {
+            "description": "Error: Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "$ref": "#/components/schemas/Message"
+                },
+                "example": {
+                  "message": "Submit at least one fields for update"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "$ref": "#/components/schemas/Message"
+                },
+                "example": {
+                  "message": "You didn't update this user"
+                }
+              }
+            }
+          },
+          "400-": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "$ref": "#/components/schemas/Message"
+                },
+                "example": {
+                  "message": "The provided email is already in use"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "$ref": "#/components/schemas/Message"
+                },
+                "example": {
+                  "message": "User not found by ID"
+                }
+              }
+            }
+          },
+    
+          "500": {
+            "description": "Unexpected Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "$ref": "#/components/schemas/Unexpected-Error"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "$ref": "#/components/schemas/Message"
+                    },
+                    "user": {
+                      "$ref": "#/components/schemas/User"
+                    }
+                  }
+                },
+                "example": {
+                  "message": "User successfully updated",
+                  "user": {
+                    "_id": "670921d54df7578bbf2a9dfc",
+                    "name": "Gilmar Alves Rocha",
+                    "username": "@gilmar",
+                    "email": "gilmar@email.com"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/findAll": {
+      "get": {
+        "summary": "Search all users",
+        "description": "Route responsible for fetching all users.",
+        "tags": ["Users"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "No Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "$ref": "#/components/schemas/Message"
+                },
+                "example": {
+                  "message": "There are no registered users"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "$ref": "#/components/schemas/Unexpected-Error"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/User"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/id/{id}": {
+      "get": {
+        "summary": "Search user by ID",
+        "description": "Route responsible for searching for user by ID.",
+        "tags": ["Users"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "type": "string",
+            "description": "User ID",
+            "required": true
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          },
+          "400": {
+            "description": "No Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "$ref": "#/components/schemas/Message"
+                },
+                "example": {
+                  "message": "User not found by ID"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "$ref": "#/components/schemas/Unexpected-Error"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/email/{email}": {
+      "get": {
+        "summary": "Search user by Email",
+        "description": "Route responsible for searching for user by Email.",
+        "tags": ["Users"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "email",
+            "type": "string",
+            "description": "User Email",
+            "required": true
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "$ref": "#/components/schemas/Message"
+                },
+                "example": {
+                  "message": "User not found by email"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "$ref": "#/components/schemas/Unexpected-Error"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/me": {
+      "get": {
+        "summary": "Search for logged in user",
+        "description": "Route responsible for searching for the logged in user.",
+        "tags": ["Users"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          },
+          "400": {
+            "description": "No Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "$ref": "#/components/schemas/Message"
+                },
+                "example": {
+                  "message": "User not found by ID"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "$ref": "#/components/schemas/Unexpected-Error"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/news/": {
+      "post": {
+        "summary": "Create a new News",
+        "description": "Route responsible for creating a new News.",
+        "tags": ["News"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/News"
+              },
+              "examples": {
+                "Post": {
+                  "value": {
+                    "user": "",
+                    "banner": "imagine the image",
+                    "title": "MERN STACK",
+                    "text": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          },
+          "400": {
+            "description": "Bad Request - Missing Required Fields",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "$ref": "#/components/schemas/Message"
+                },
+                "example": {
+                  "message": "Submit all fields for registration"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Unexpected-Error"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "$ref": "#/components/schemas/News"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/news/findAll": {
+      "get": {
+        "summary": "Search all News",
+        "description": "Route responsible for fetching all News. The results are paginated. Use pagination parameters to navigate the list.",
+        "tags": ["News"],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Unexpected-Error"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "nextUrl": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "URL for the next page of results",
+                      "example": null
+                    },
+                    "previousUrl": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "URL for the previous page of results",
+                      "example": null
+                    },
+                    "limit": {
+                      "type": "number",
+                      "description": "The number of results per page",
+                      "example": 5
+                    },
+                    "offset": {
+                      "type": "number",
+                      "description": "The starting point of the results",
+                      "example": 0
+                    },
+                    "total": {
+                      "type": "number",
+                      "description": "The total number of results",
+                      "example": 1
+                    },
+                    "news": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/News"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/news/top": {
+      "get": {
+        "summary": "Search top News",
+        "description": "Route responsible for fetching top News.",
+        "tags": ["News"],
+        "responses": {
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Unexpected-Error"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "$ref": "#/components/schemas/News"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/news/id/{newsId}": {
+      "get": {
+        "summary": "Search News by ID",
+        "description": "Route responsible for fetching News by ID.",
+        "tags": ["News"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "newsId",
+            "type": "string",
+            "description": "News ID",
+            "required": true
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Unexpected-Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "$ref": "#/components/schemas/News"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/news/search": {
+      "get": {
+        "summary": "Search News by title",
+        "description": "Route responsible for fetching the News that match the title sent via query params.",
+        "tags": ["News"],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "title",
+            "type": "string",
+            "required": true,
+            "example": "MERN STACK"
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Unexpected-Error"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/News"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/news/newsByUser": {
+      "get": {
+        "summary": "Search news by logged-in user",
+        "description": "Route responsible for fetching news articles posted by the logged-in user.",
+        "tags": ["News"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Unexpected-Error"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/News"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/news/{newsId}": {
+      "patch": {
+        "summary": "Update a News",
+        "description": "Route responsible for updating a News.",
+        "tags": ["News"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "newsId",
+            "type": "string",
+            "description": "News ID",
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/News"
+              },
+              "examples": {
+                "Post": {
+                  "value": {
+                    "title": "MERN STACK - DEV"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Unexpected-Error"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "$ref": "#/components/schemas/Message"
+                },
+                "example": {
+                  "message": "You didn't update this News"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error: Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "$ref": "#/components/schemas/Message"
+                },
+                "example": {
+                  "message": "Submit at least one fields for update"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                },
+                "example": {
+                  "message": "Post successfully updated",
+                  "news": {
+                    "_id": "60d21b4667d0d8992e610c85",
+                    "title": "MERN STACK - DEV",
+                    "text": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
+                    "banner": "imagine the image",
+                    "dataLikeId": null,
+                    "likeCount": 0,
+                    "dataCommentId": null,
+                    "commentCount": 0,
+                    "createdAt": "2024-07-12T12:49:30.528Z",
+                    "__v": 0,
+                    "user": {
+                      "_id": "60d21b4557d0d8992e610c85",
+                      "name": "Gilmar Alves",
+                      "username": "@gilmar",
+                      "email": "gilmar@email.com"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/news/deleteNews/{newsId}": {
+      "delete": {
+        "summary": "Delete a News",
+        "description": "Route responsible for deleting a News",
+        "tags": ["News"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "newsId",
+            "type": "string",
+            "description": "News ID",
+            "required": true
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Unexpected-Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "$ref": "#/components/schemas/Message"
+                },
+                "example": {
+                  "message": "You didn't update this News"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                },
+                "example": {
+                  "message": "Post deleted successfully",
+                  "news": {
+                    "_id": "60d21b4667d0d8992e610c85",
+                    "title": "MERN STACK",
+                    "text": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
+                    "banner": "imagine the image",
+                    "dataLikeId": null,
+                    "likeCount": 0,
+                    "dataCommentId": null,
+                    "commentCount": 0,
+                    "createdAt": "2024-07-12T12:49:30.528Z",
+                    "__v": 0,
+                    "user": {
+                      "_id": "60d21b4557d0d8992e610c85",
+                      "name": "Gilmar Alves",
+                      "username": "@gilmar",
+                      "email": "gilmar@email.com"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/news/likeNews/{newsId}": {
+      "post": {
+        "summary": "Like a News",
+        "description": "Route responsible for liking a News. The first time the user accesses the route, their data is inserted into the array of the document that contains the list of all users who liked the item. If the route is accessed again, the user's data is removed from the document. If the response is 'true', the like action was successful. If the response is 'false', the like was removed.",
+        "tags": ["News"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "newsId",
+            "type": "string",
+            "description": "News ID",
+            "required": true
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Unexpected-Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                },
+                "example": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "/news/likePage/{newsId}": {
+      "get": {
+        "summary": "Search users who liked a News",
+        "description": "Route responsible for fetching the list of users who liked a news. The results are paginated. Use pagination parameters to navigate the list.",
+        "tags": ["News"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "newsId",
+            "type": "string",
+            "description": "News ID",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "nextUrl": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "URL for the next page of results",
+                      "example": null
+                    },
+                    "previousUrl": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "URL for the previous page of results",
+                      "example": null
+                    },
+                    "limit": {
+                      "type": "number",
+                      "description": "The number of results per page",
+                      "example": 5
+                    },
+                    "offset": {
+                      "type": "number",
+                      "description": "The starting point of the results",
+                      "example": 0
+                    },
+                    "total": {
+                      "type": "number",
+                      "description": "The total number of results",
+                      "example": 1
+                    },
+                    "likes": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "user": {
+                            "$ref": "#/components/schemas/User"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/news/comment/{newsId}": {
+      "post": {
+        "summary": "Comment a News",
+        "description": "Route responsible for comment a News.",
+        "tags": ["Comment"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "newsId",
+            "type": "string",
+            "description": "News ID",
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "content": {
+                    "type": "string",
+                    "example": "Goooood!!!"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Unexpected-Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "Error: Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "$ref": "#/components/schemas/Message"
+                },
+                "example": {
+                  "message": "Write a message to comment"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "$ref": "#/components/schemas/Message"
+                    },
+                    "comment": {
+                      "$ref": "#/components/schemas/Comment"
+                    }
+                  }
+                },
+                "example": {
+                  "message": "Comment successfully completed",
+                  "comment": {
+                    "newsId": "671f784342ae9efc07f30ea9",
+                    "comment": [
+                      {
+                        "userId": "671f780f42ae9efc07f30e8a",
+                        "content": "Goooood!!!",
+                        "dataLikeId": null,
+                        "dataReplyId": null,
+                        "likeCount": 0,
+                        "replyCount": 0,
+                        "createdAt": "2024-10-28T13:47:32.097Z",
+                        "_id": "671f964b134021f0fdc29c1d"
+                      }
+                    ],
+                    "_id": "671f964b134021f0fdc29c1c",
+                    "__v": 0
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/news/commentPage/{newsId}": {
+      "get": {
+        "summary": "Search comments from a News",
+        "description": "Fetch all comments for a specific News by its ID. The results are paginated. Use pagination parameters to navigate the list.",
+        "tags": ["Comment"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "newsId",
+            "type": "string",
+            "description": "News ID",
+            "required": true
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Unexpected-Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "$ref": "#/components/schemas/Message"
+                },
+                "example": {
+                  "message": "There are no registered comments"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "nextUrl": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "URL for the next page of results",
+                      "example": null
+                    },
+                    "previousUrl": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "URL for the previous page of results",
+                      "example": null
+                    },
+                    "limit": {
+                      "type": "number",
+                      "description": "The number of results per page",
+                      "example": 10
+                    },
+                    "offset": {
+                      "type": "number",
+                      "description": "The starting point of the results",
+                      "example": 0
+                    },
+                    "total": {
+                      "type": "number",
+                      "description": "The total number of results",
+                      "example": 1
+                    },
+                    "comments": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "_id": {
+                            "type": "string",
+                            "description": "The unique identifier for the comment.",
+                            "example": "66955de0bc49ef85f3aa0a40"
+                          },
+                          "comment": {
+                            "type": "object",
+                            "properties": {
+                              "content": {
+                                "type": "string",
+                                "description": "The content of the comment.",
+                                "example": "Good"
+                              },
+                              "dataLikeId": {
+                                "type": "string",
+                                "description": "Unique identifier of the document containing the list of users who liked the Comment. This refers to the LikeComment schema.",
+                                "example": null,
+                                "nullable": true
+                              },
+                              "dataReplyId": {
+                                "type": "string",
+                                "description": "Unique identifier of the document containing the list of replies on the Comment. This refers to the ReplyComment schema.",
+                                "example": null,
+                                "nullable": true
+                              },
+                              "likeCount": {
+                                "type": "number",
+                                "description": "Number of likes the comment has received.",
+                                "example": 0
+                              },
+                              "replyCount": {
+                                "type": "number",
+                                "description": "Number of replies to the comment.",
+                                "example": 0
+                              },
+                              "createdAt": {
+                                "$ref": "#/components/schemas/CreatedAt"
+                              },
+                              "_id": {
+                                "type": "string",
+                                "description": "Unique identifier of the specific comment.",
+                                "example": "66955de0bc49ef85f3aa0a41"
+                              }
+                            }
+                          },
+                          "user": {
+                            "type": "object",
+                            "properties": {
+                              "_id": {
+                                "type": "string",
+                                "description": "Unique identifier for the user.",
+                                "example": "66955de0bc49ef85f3aa0a41"
+                              },
+                              "name": {
+                                "type": "string",
+                                "description": "Name of the user.",
+                                "example": "Gilmar Alves"
+                              },
+                              "username": {
+                                "type": "string",
+                                "description": "Username of the user.",
+                                "example": "@gilmar"
+                              },
+                              "email": {
+                                "type": "string",
+                                "description": "Email address of the user.",
+                                "example": "gilmar@email.com"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/news/deleteComment/{dataCommentId}/{commentId}": {
+      "delete": {
+        "summary": "Delete a Comment",
+        "description": "Route responsible for deleting a comment from a news article.",
+        "tags": ["Comment"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "dataCommentId",
+            "type": "string",
+            "description": "Parent document ID",
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "commentId",
+            "type": "string",
+            "description": "ID of a specific comment",
+            "required": true
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Unexpected-Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "$ref": "#/components/schemas/Message"
+                },
+                "example": {
+                  "message": "You can't delete this comment"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "$ref": "#/components/schemas/Message"
+                },
+                "example": {
+                  "message": "Comment successfully removed"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/news/likeComment/{dataCommentId}/{commentId}": {
+      "post": {
+        "summary": "Like a Comment",
+        "description": "Route responsible for liking a Comment. The first time the user accesses the route, their data is inserted into the array of the document that contains the list of all users who liked the item. If the route is accessed again, the user's data is removed from the document. If the response is 'true', the like action was successful. If the response is 'false', the like was removed.",
+        "tags": ["Comment"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "dataCommentId",
+            "type": "string",
+            "description": "Parent document ID",
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "commentId",
+            "type": "string",
+            "description": "ID of a specific comment",
+            "required": true
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Unexpected-Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                },
+                "example": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "/news/reply/{dataCommentId}/{commentId}": {
+      "post": {
+        "summary": "Reply a Comment",
+        "description": "Route responsible for reply a comment.",
+        "tags": ["ReplyComment"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "dataCommentId",
+            "type": "string",
+            "description": "Parent document ID",
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "commentId",
+            "type": "string",
+            "description": "ID of a specific comment",
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "content": {
+                    "type": "string",
+                    "example": "Good"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Unexpected-Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "400": {
+            "description": "Error: Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "$ref": "#/components/schemas/Message"
+                },
+                "example": {
+                  "message": "Write a message to reply"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "$ref": "#/components/schemas/Message"
+                    },
+                    "reply": {
+                      "$ref": "#/components/schemas/ReplyComment"
+                    }
+                  }
+                },
+                "example": {
+                  "message": "Comment successfully completed",
+                  "reply": {
+                    "dataCommentId": "671f964b134021f0fdc29c1c",
+                    "commentId": "6720170fb05c3d3a4d84fde8",
+                    "reply": [
+                      {
+                        "userId": "671f780f42ae9efc07f30e8a",
+                        "content": "Good",
+                        "dataLikeId": null,
+                        "likeCount": 0,
+                        "createdAt": "2024-10-29T13:10:40.845Z",
+                        "_id": "6720df53d9a8895085b7be79"
+                      }
+                    ],
+                    "_id": "671f964b134021f0fdc29c1c",
+                    "__v": 0
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/news/replyPage/{dataCommentId}/{commentId}": {
+      "get": {
+        "summary": "Search replies from a Comment",
+        "description": "Fetch all commrepliesents for a specific comment by its IDs. The results are paginated. Use pagination parameters to navigate the list.",
+        "tags": ["ReplyComment"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "dataCommentId",
+            "type": "string",
+            "description": "Parent document ID",
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "commentId",
+            "type": "string",
+            "description": "ID of a specific comment",
+            "required": true
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Unexpected-Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "No Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "$ref": "#/components/schemas/Message"
+                },
+                "example": {
+                  "message": "There are no registered replies"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "nextUrl": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "URL for the next page of results",
+                      "example": null
+                    },
+                    "previousUrl": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "URL for the previous page of results",
+                      "example": null
+                    },
+                    "limit": {
+                      "type": "number",
+                      "description": "The number of results per page",
+                      "example": 10
+                    },
+                    "offset": {
+                      "type": "number",
+                      "description": "The starting point of the results",
+                      "example": 0
+                    },
+                    "total": {
+                      "type": "number",
+                      "description": "The total number of results",
+                      "example": 1
+                    },
+                    "replies": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "_id": {
+                            "type": "string",
+                            "description": "The unique identifier for the parent document that contains an array of replies associated with a specific Comment. The ID value corresponds to the value of dataReplyId in the Comment document.",
+                            "example": "66955de0bc49ef85f3aa0a40"
+                          },
+                          "reply": {
+                            "type": "object",
+                            "properties": {
+                              "content": {
+                                "type": "string",
+                                "description": "The content of the reply.",
+                                "example": "Good"
+                              },
+                              "dataLikeId": {
+                                "type": "string",
+                                "description": "Unique identifier of the document containing the list of users who liked the Reply. This refers to the LikeReply schema.",
+                                "example": null,
+                                "nullable": true
+                              },
+                              "likeCount": {
+                                "type": "number",
+                                "description": "Number of likes the reply has received.",
+                                "example": 0
+                              },
+                              "createdAt": {
+                                "$ref": "#/components/schemas/CreatedAt"
+                              },
+                              "_id": {
+                                "type": "string",
+                                "description": "Unique identifier of a specific reply.",
+                                "example": "66955de0bc49ef85f3aa0a41"
+                              }
+                            }
+                          },
+                          "user": {
+                            "type": "object",
+                            "properties": {
+                              "_id": {
+                                "type": "string",
+                                "description": "Unique identifier for the user.",
+                                "example": "66955de0bc49ef85f3aa0a41"
+                              },
+                              "name": {
+                                "type": "string",
+                                "description": "Name of the user.",
+                                "example": "Gilmar Alves"
+                              },
+                              "username": {
+                                "type": "string",
+                                "description": "Username of the user.",
+                                "example": "@gilmar"
+                              },
+                              "email": {
+                                "type": "string",
+                                "description": "Email address of the user.",
+                                "example": "gilmar@email.com"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/news/deleteReply/{dataReplyId}/{replyId}": {
+      "delete": {
+        "summary": "Delete a Reply",
+        "description": "Route responsible for deleting a reply from a comment.",
+        "tags": ["ReplyComment"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "dataReplyId",
+            "type": "string",
+            "description": "Parent document ID",
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "replyId",
+            "type": "string",
+            "description": "ID of a specific reply",
+            "required": true
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Unexpected-Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "$ref": "#/components/schemas/Message"
+                },
+                "example": {
+                  "message": "You can't delete this reply"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "$ref": "#/components/schemas/Message"
+                },
+                "example": {
+                  "message": "Reply successfully removed"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/news/likeReply/{dataReplyId}/{replyId}": {
+      "post": {
+        "summary": "Like a Reply",
+        "description": "Route responsible for liking a Reply. The first time the user accesses the route, their data is inserted into the array of the document that contains the list of all users who liked the item. If the route is accessed again, the user's data is removed from the document.",
+        "tags": ["ReplyComment"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "dataReplyId",
+            "type": "string",
+            "description": "Parent document ID",
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "replyId",
+            "type": "string",
+            "description": "ID of a specific reply",
+            "required": true
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Unexpected-Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                },
+                "example": true
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "description": "Unique identifier for the user.",
+            "example": "60d21b4557d0d8992e610c85"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the user.",
+            "example": "Gilmar Alves"
+          },
+          "username": {
+            "type": "string",
+            "description": "Username for the user.",
+            "example": "@gilmar"
+          },
+          "email": {
+            "type": "string",
+            "description": "Email address of the user.",
+            "example": "gilmar@email.com"
+          }
+        }
+      },
+      "News": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "description": "Unique identifier for the News.",
+            "example": "60d21b4667d0d8992e610c85"
+          },
+          "title": {
+            "type": "string",
+            "description": "Title of the News article.",
+            "example": "MERN STACK"
+          },
+          "text": {
+            "type": "string",
+            "description": "Full text of the News article.",
+            "example": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum."
+          },
+          "banner": {
+            "type": "string",
+            "description": "URL of the banner image for the News article.",
+            "example": "imagine the image"
+          },
+          "dataLikeId": {
+            "type": "string",
+            "nullable": true,
+            "description": "Unique identifier of the document containing the list of users who liked the News. This refers to the LikeNews schema.",
+            "example": null
+          },
+          "likeCount": {
+            "type": "number",
+            "description": "Number of likes the News article has received.",
+            "example": 0
+          },
+          "dataCommentId": {
+            "type": "string",
+            "nullable": true,
+            "description": "Unique identifier of the document containing the list of comments on the News article. This refers to the Comment schema.",
+            "example": null
+          },
+          "commentCount": {
+            "type": "number",
+            "description": "Number of comments the News article has received.",
+            "example": 0
+          },
+          "createdAt": {
+            "$ref": "#/components/schemas/CreatedAt"
+          },
+          "__v": {
+            "type": "number",
+            "description": "Version key for the News document.",
+            "example": 0
+          },
+          "user": {
+            "type": "object",
+            "$ref": "#/components/schemas/User",
+            "description": "Details of the user who created the News article."
+          }
+        }
+      },
+      "LikeNews": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "description": "Unique identifier of the document containing the list of users who liked the news. The ID value corresponds to the value of dataLikeId in the News document.",
+            "example": "60d81b4667d0d5992e610c85"
+          },
+          "newsId": {
+            "type": "string",
+            "description": "ID of the News.",
+            "example": "60d21b4667d0d8592e610c85"
+          },
+          "likes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Like"
+            }
+          }
+        }
+      },
+      "Like": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "$ref": "#/components/schemas/User"
+          },
+          "createdAt": {
+            "$ref": "#/components/schemas/CreatedAt"
+          }
+        }
+      },
+      "Comment": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "description": "Unique identifier for the parent document that contains an array of comments associated with a specific news article. The ID value corresponds to the value of dataCommentId in the News document.",
+            "example": "60d21b4667d0d8992e610c89"
+          },
+          "newsId": {
+            "type": "string",
+            "description": "Unique identifier of the News.",
+            "example": "60d21b4667d0d8992e610c85"
+          },
+          "comment": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "_id": {
+                  "type": "string",
+                  "description": "Unique identifier of the specific comment.",
+                  "example": "66955de0bc49ef85f3aa0a41"
+                },
+                "userId": {
+                  "$ref": "#/components/schemas/User"
+                },
+                "content": {
+                  "type": "string",
+                  "description": "The content of the comment.",
+                  "example": "This is a great article!"
+                },
+                "dataLikeId": {
+                  "type": "string",
+                  "description": "Unique identifier of the document containing the list of users who liked the Comment. This refers to the LikeComment schema.",
+                  "example": null,
+                  "nullable": true
+                },
+                "dataReplyId": {
+                  "type": "string",
+                  "description": "Unique identifier of the document containing the list of replies on the Comment. This refers to the ReplyComment schema.",
+                  "example": null,
+                  "nullable": true
+                },
+                "likeCount": {
+                  "type": "number",
+                  "description": "Number of likes the comment has received.",
+                  "example": 0
+                },
+                "replyCount": {
+                  "type": "number",
+                  "description": "Number of replies to the comment.",
+                  "example": 0
+                },
+                "createdAt": {
+                  "$ref": "#/components/schemas/CreatedAt"
+                }
+              }
+            }
+          }
+        }
+      },
+      "LikeComment": {
+        "type": "object",
+        "properties": {
+          "dataCommentId": {
+            "type": "string",
+            "description": "Unique identifier of the document containing the list of replies on the Comment. This refers to the ReplyComment schema.",
+            "example": "60d21b4667d0d8992e610c89"
+          },
+          "commentId": {
+            "type": "string",
+            "description": "Unique identifier of the specific reply.",
+            "example": "60d21b4667d0d8992e610c85"
+          },
+          "likes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Like"
+            }
+          }
+        }
+      },
+      "ReplyComment": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "description": "The unique identifier for the parent document that contains an array of replies associated with a specific Comment. The ID value corresponds to the value of dataReplyId in the Comment document.",
+            "example": "60d21b4667d0d8992e610c89"
+          },
+          "dataCommentId": {
+            "type": "string",
+            "description": "Unique identifier of the parent document that has the comments.",
+            "example": "60d21b4667d0d8992e610c85"
+          },
+          "commentId": {
+            "type": "string",
+            "description": "Unique identifier of a specific comment.",
+            "example": "60d21b4667d0d8992e610c85"
+          },
+          "reply": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "_id": {
+                  "type": "string",
+                  "description": "Unique identifier of a specific reply.",
+                  "example": "60d21b4667d0d8992e610c89"
+                },
+                "content": {
+                  "type": "string",
+                  "description": "The content of the reply.",
+                  "example": "This is a great article!"
+                },
+                "dataLikeId": {
+                  "type": "string",
+                  "description": "Unique identifier of the document containing the list of users who liked the Reply. This refers to the LikeReply schema.",
+                  "example": null,
+                  "nullable": true
+                },
+                "likeCount": {
+                  "type": "number",
+                  "description": "Number of likes the reply has received.",
+                  "example": 0
+                },
+                "user": {
+                  "$ref": "#/components/schemas/User"
+                },
+                "createdAt": {
+                  "$ref": "#/components/schemas/CreatedAt"
+                }
+              }
+            }
+          }
+        }
+      },
+      "LikeReply": {
+        "type": "object",
+        "properties": {
+          "dataReplyCommentId": {
+            "type": "string",
+            "description": "Unique identifier of the parent document containing an array of reply comments.",
+            "example": "60d21b4667d0d8992e610c89"
+          },
+          "replyCommentId": {
+            "type": "string",
+            "description": "Unique identifier of the specific reply comment.",
+            "example": "60d21b4667d0d8992e610c85"
+          },
+          "likes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Like"
+            }
+          }
+        }
+      },
+      "Message": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "CreatedAt": {
+        "type": "string",
+        "format": "date-time",
+        "description": "Date and time when the like was created",
+        "example": "2024-07-12T12:49:30.528Z"
+      },
+      "Unexpected-Error": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Unexpected error",
+            "example": "An unexpected error occurred"
+          }
+        }
+      }
+    }
+  }
+}

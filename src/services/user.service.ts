@@ -58,5 +58,6 @@ const findByIdService = async (userId: Types.ObjectId): Promise<IUser> => {
 
 export default {
     createUserService,
-    updateService
+    updateService,
+    findByIdService
 }

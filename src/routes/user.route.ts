@@ -7,5 +7,6 @@ const router = Router();
 
 router.post("/", userController.createUser);
 router.patch("/:userId", authMiddleware, validateAndConvertIds, userController.update);
+router.get("/me/", authMiddleware, userController.getLoggedInUser);
 
 export default router;
