@@ -5,15 +5,8 @@ import { Types } from "mongoose";
 
 const authMiddleware = (req: Request, res: Response, next: NextFunction):  Response | any => {
     try {
-        const { authorization } = req.headers;
-
-        if (!authorization) return res.status(401);
-
-        const parts = authorization.split(" ");
-        if (parts.length !== 2) return res.status(401);
-
-        const [schema, token] = parts;
-        if (schema !== "Bearer") return res.status(401);
+        const token = req.cookies.token
+        if (!token) return res.status(401);
 
         jwt.verify(token, process.env.SECRET_JWT as string, async (error: any, decoded: any) => {
             if (error) return res.status(401).send({ message: "Token invalid" });
