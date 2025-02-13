@@ -13,8 +13,8 @@ const login = async (req: Request, res: Response): Promise<Response | any> => {
             path: "/",
             maxAge: 86400000
         });
-
-        res.status(200).send(user);
+        const { password: pwd, ...userWithoutPassword } = user.toObject();
+         res.status(200).send(userWithoutPassword);
     } catch (err: any) {
         if (err.message === "Email or Password not found")
             return res.status(400).send({ message: err.message });

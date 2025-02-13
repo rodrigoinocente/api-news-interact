@@ -5,13 +5,18 @@ const createUser = async (req: Request, res: Response): Promise<Response | any> 
     const body = req.body;
 
     try {
-        const { user, token } = await userService.createUserService(body);
+        const { createdUser, token } = await userService.createUserService(body);
 
-        return res.status(201).send({
-            message: "User created successfully",
-            user,
-            token
+        res.cookie("token", token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+            path: "/",
+            maxAge: 86400000
         });
+
+        const { password: pwd, ...userWithoutPassword } = createdUser.toObject();
+        return res.status(201).send(userWithoutPassword);
     } catch (err: any) {
         if (err.message === "Submit all fields for registration")
             return res.status(400).send({ message: err.message });
