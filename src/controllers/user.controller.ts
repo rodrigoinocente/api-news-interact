@@ -21,7 +21,7 @@ const createUser = async (req: Request, res: Response): Promise<Response | any> 
         if (err.message === "Submit all fields for registration")
             return res.status(400).send({ message: err.message });
 
-        if (err.message === "The provided email is already in use")
+        if (err.message === "Este e-mail já está cadastrado")
             return res.status(400).send({ message: err.message });
 
         if (err.message === "Error creating User")
@@ -48,7 +48,7 @@ const update = async (req: Request, res: Response): Promise<Response | any> => {
         if (err.message === "You didn't update this user")
             return res.status(403).send({ message: err.message });
 
-        if (err.message === "The provided email is already in use")
+        if (err.message === "O e-mail fornecido já está em uso")
             return res.status(400).send({ message: err.message });
 
         if (err.message === "User not found by ID")

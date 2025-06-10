@@ -10,7 +10,7 @@ const createUserService = async (body: IUser): Promise<{ createdUser: IUser; tok
         throw new Error("Submit all fields for registration");
 
     const isEmailInUse = await userRepositories.findByEmailRepositories(email);
-    if (isEmailInUse) throw new Error("The provided email is already in use");
+    if (isEmailInUse) throw new Error("Este e-mail já está cadastrado");
 
     const createdUser: IUser = await userRepositories.createRepositories(body);
     if (!createdUser) throw new Error("Error creating User")
@@ -28,7 +28,7 @@ const updateService = async (userToFoundId: Types.ObjectId, userLoggedId: Types.
 
     if (email) {
         const isEmailInUse = await userRepositories.findByEmailRepositories(email);
-        if (isEmailInUse) throw new Error("The provided email is already in use");
+        if (isEmailInUse) throw new Error("O e-mail fornecido já está em uso.");
     }
 
     await findByIdService(userToFoundId);

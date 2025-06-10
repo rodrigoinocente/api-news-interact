@@ -4,10 +4,10 @@ import authRepositories from "../repositories/auth.repositories";
 
 const loginService = async (email: string, password: string) => {
         const user: IUser | null = await authRepositories.loginService(email);
-        if (!user)  throw new Error("Email or Password not found");
+        if (!user)  throw new Error("E-mail ou senha não encontrados");
 
         const passwordIsValid = await bcrypt.compare(password, user.password);
-        if (!passwordIsValid) throw new Error("Email or Password not found");
+        if (!passwordIsValid) throw new Error("E-mail ou senha não encontrados");
 
         const token = authRepositories.generateToken(user._id);
 
