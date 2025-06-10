@@ -10,7 +10,7 @@ import ReplyCommentSchema from "../models/ReplyComment";
 import LikeReplySchema from "../models/LikeReply";
 
 
-const connectDb = mongoose.createConnection(process.env.MONGODB_URI as string);
+const connectDb = mongoose.createConnection(process.env.INTERACT_MONGODB_URI as string);
 
 export const UserModel = connectDb.model<IUser>("User", UserSchema, "users");
 export const CommentModel = connectDb.model<ICommentNews>("Comment", CommentSchema, "comments");

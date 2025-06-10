@@ -8,7 +8,7 @@ const authMiddleware = (req: Request, res: Response, next: NextFunction):  Respo
         const token = req.cookies.token
         if (!token) return res.status(401);
 
-        jwt.verify(token, process.env.SECRET_JWT as string, async (error: any, decoded: any) => {
+        jwt.verify(token, process.env.INTERACT_SECRET_JWT as string, async (error: any, decoded: any) => {
             if (error) return res.status(401).send({ message: "Token invalid" });
 
             const user = await userRepositories.findByIdRepositories(decoded.id);
