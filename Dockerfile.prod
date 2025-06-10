@@ -1,0 +1,15 @@
+FROM node:20.18.0 AS build
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+RUN npm run build
+
+FROM node:20.18.0
+WORKDIR /app
+COPY --from=build /app ./
+RUN npm prune --production
+
+RUN rm -rf src
+
+CMD ["npm", "start"]
