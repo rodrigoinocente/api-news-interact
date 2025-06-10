@@ -14,7 +14,7 @@
     "typescript": "^5.6.3"
   },
   "scripts": {
-    "build": "npm install && rm -rf ./built && tsc",
+    "build": "rm -rf ./built && tsc",
     "start": "node built/server.js",
     "dev": "ts-node-dev server.ts",
     "watch": "tsc --watch"
