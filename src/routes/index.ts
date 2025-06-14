@@ -13,4 +13,7 @@ router.use("/comment", commentRouter);
 router.use("/reply", replyRouter);
 router.use("/doc", swaggerRouter);
 
+//Render, don't sleep
+router.use("/health", (req, res) => { res.sendStatus(200) });
+
 export default router;
