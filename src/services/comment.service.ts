@@ -4,19 +4,23 @@ import commentRepositories from "../repositories/comment.repositories";
 
 const addCommentService = async (newsId: Types.ObjectId, userId: Types.ObjectId, content: string): Promise<ICommentNews> => {
     if (!content) throw new Error("Write a message to comment");
+    let doc: ICommentNews;
 
-    const findComments = await commentRepositories.findCommentsByNewsId(newsId)
-    if (findComments.length === 0) {
+    const existComments = await commentRepositories.findCommentsByNewsId(newsId)
+    if (existComments.length === 0) {
         const createdDataComment = await commentRepositories.createCommentDataRepositories(newsId, userId, content);
-        if (!createdDataComment) throw new Error("Failed to create comment");
 
-        return createdDataComment;
+        doc = createdDataComment;
     } else {
-        const upDateComment = await commentRepositories.upDateCommentDataRepositories(findComments[0]._id, userId, content);
-        if (!upDateComment) throw new Error("Failed to create comment");
+        const upDateComment = await commentRepositories.upDateCommentDataRepositories(existComments[0]._id, userId, content);
 
-        return upDateComment;
+        doc = upDateComment;
     }
+
+    const formattedComment = await commentRepositories.findOneComment(doc._id, doc.comment[0]._id);
+    if (!formattedComment) throw new Error("Failed to retrieve the new comment");
+
+    return formattedComment[0]
 };
 
 const getPaginatedCommentsService = async (newsId: Types.ObjectId, limit: number, offset: number, currentUrl: string): Promise<Paginated> => {

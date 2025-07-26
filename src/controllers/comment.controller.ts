@@ -14,10 +14,10 @@ const addComment = async (req: Request, res: Response): Promise<Response | any> 
         if (err.message === "Write a message to comment")
             return res.status(400).send({ message: err.message });
 
-        if (err.message === "Failed to create comment")
-            return res.status(500).send({ message: "An unexpected error occurred" });
+        if (err.message === "Failed to retrieve the new comment")
+            return res.status(500).send({ message: err.message });
 
-        return res.status(500).send({ message: "An unexpected error occurred" });
+        return res.status(500).send({ message: "Failed to create commentd" });
     }
 };
 

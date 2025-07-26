@@ -3,17 +3,42 @@ import { ICommentNews, ILikeComment } from "../../custom";
 import { CommentModel, LikeCommentModel } from "../database/db";
 
 const findCommentsByNewsId = (newsId: Types.ObjectId): Promise<ICommentNews[] | []> => {
-    return CommentModel.aggregate([
-        { $match: { newsId: newsId, }, },
-        { $project: { _id: 1, newsId: 1, }, },
-    ])
+  return CommentModel.aggregate([
+    { $match: { newsId: newsId, }, },
+    { $project: { _id: 1, newsId: 1, }, },
+  ])
 };
 
 const createCommentDataRepositories = (newsId: Types.ObjectId, userId: Types.ObjectId, content: string): Promise<ICommentNews> =>
-    CommentModel.create({ newsId, comment: [{ userId, content }] });
+  CommentModel.create({ newsId, comment: [{ userId, content }], new: true });
 
-const upDateCommentDataRepositories = (dataCommentId: Types.ObjectId, userId: Types.ObjectId, content: string): Promise<ICommentNews | null> =>
-    CommentModel.findOneAndUpdate({ _id: dataCommentId }, { $push: { comment: [{ userId, content }] } }, { select: "_id" });
+const upDateCommentDataRepositories = async (dataCommentId: Types.ObjectId, userId: Types.ObjectId, content: string): Promise<ICommentNews> => {
+  const updateResult = await CommentModel.findOneAndUpdate(
+    { _id: dataCommentId },
+    {
+      $push: {
+        comment: {
+          userId,
+          content
+        }
+      }
+    },
+    {
+      new: true,
+      projection: {
+        _id: 1,
+        newsId: 1,
+        comment: { $slice: -1 }
+      }
+    }
+  );
+
+  if (!updateResult || !updateResult.comment || !updateResult.comment[0]) {
+    throw new Error("Comentário não foi adicionado.");
+  }
+
+  return updateResult;
+};
 
 const commentsPipelineRepositories = (newsId: Types.ObjectId, offset: number, limit: number): Promise<ICommentNews[] | []> => {
     return CommentModel.aggregate([
@@ -59,6 +84,44 @@ const totalCommentsRepositories = (newsId: Types.ObjectId) => {
 
 const findCommentByIdRepositories = (dataCommentId: Types.ObjectId, commentId: Types.ObjectId): Promise<ICommentNews | null> =>
     CommentModel.findOne({ _id: dataCommentId, "comment._id": commentId }, { "comment.$": 1 });
+
+const findOneComment = (dataCommentId: Types.ObjectId, commentId: Types.ObjectId) => {
+  return CommentModel.aggregate([
+    { $match: { _id: dataCommentId } },
+    { $unwind: "$comment" },
+    { $match: { "comment._id": commentId } },
+    {
+      $lookup: {
+        from: "users",
+        localField: "comment.userId",
+        foreignField: "_id",
+        as: "user"
+      }
+    },
+    { $unwind: "$user" },
+    {
+      $project: {
+        _id: 1,
+        newsId: 1,
+        comment: [{
+          _id: "$comment._id",
+          content: "$comment.content",
+          dataLikeId: "$comment.dataLikeId",
+          dataReplyId: "$comment.dataReplyId",
+          likeCount: "$comment.likeCount",
+          replyCount: "$comment.replyCount",
+          createdAt: "$comment.createdAt",
+          documentId: "$_id",
+          user: {
+            _id: "$user._id",
+            username: "$user.username",
+            profilePicture: "$user.profilePicture"
+          }
+        }]
+      }
+    }
+  ]);
+};
 
 const deleteCommentRepositories = (dataCommentId: Types.ObjectId, commentId: Types.ObjectId): Promise<UpdateWriteOpResult | null> =>
     CommentModel.updateMany({ _id: dataCommentId }, { $pull: { comment: { _id: commentId } } });
