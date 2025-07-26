@@ -63,9 +63,6 @@ const replyCommentsPipelineRepositories = (dataReplyCommentId: Types.ObjectId, u
     ReplyCommentModel.aggregate([
         { $match: { _id: dataReplyCommentId } },
         { $unwind: { path: "$reply" } },
-        { $sort: { "reply.createdAt": -1 } },
-        { $skip: offset },
-        { $limit: limit },
         {
             $lookup: {
                 from: "users",
@@ -76,21 +73,56 @@ const replyCommentsPipelineRepositories = (dataReplyCommentId: Types.ObjectId, u
         },
         { $unwind: { path: "$user" } },
         {
+            $lookup: {
+                from: "likeReply",
+                let: { replyId: "$reply._id" },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: {
+                                $and: [
+                                    { $eq: ["$replyCommentId", "$$replyId"] },
+                                    { $in: [userId, "$likes.userId"] }
+                                ]
+                            }
+                        }
+                    }
+                ],
+                as: "likeStatus"
+            }
+        },
+        {
+            $addFields: {
+                "reply.user": {
+                    _id: "$user._id",
+                    username: "$user.username",
+                    profilePicture: "$user.profilePicture",
+                },
+                "reply.documentId": "$_id",
+                "reply.isLiked": { $gt: [{ $size: "$likeStatus" }, 0] }
+            }
+        },
+        { $replaceRoot: { newRoot: "$reply" } },
+        { $sort: { _id: -1 } },
+        { $skip: offset },
+        { $limit: limit },
+        {
             $project: {
-                "user.name": 1,
+                _id: 1,
+                content: 1,
+                createdAt: 1,
+                dataLikeId: 1,
+                likeCount: 1,
+                documentId: 1,
+                isLiked: 1,
+                likeStatus: 1,
+                "user._id": 1,
                 "user.username": 1,
-                "user.email": 1,
-                "reply.content": 1,
-                "reply.dataLikeId": 1,
-                "reply.likeCount": 1,
-                "reply.createdAt": 1,
-                "reply._id": 1,
-                "_id": 1,
+                "user.profilePicture": 1,
             },
         },
     ]
-    );
-};
+);
 
 const findReplyByIdRepositories = (dataReplyId: Types.ObjectId, replyId: Types.ObjectId): Promise<IReplyComment | null> =>
     ReplyCommentModel.findOne({ _id: dataReplyId, "reply._id": replyId }, { "reply.$": 1 })
@@ -118,6 +150,7 @@ export default {
     createReplyCommentDataRepositories,
     updateCommentDataReplyRepositories,
     addReplyCommentDataRepositories,
+    findOnePreplyRepositories,
     replyCommentsPipelineRepositories,
     findReplyByIdRepositories,
     deleteReplyCommentRepositories,

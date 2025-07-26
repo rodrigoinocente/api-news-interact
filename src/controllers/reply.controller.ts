@@ -37,19 +37,16 @@ const addReplyComment = async (req: Request, res: Response): Promise<Response | 
 const getPaginatedReply = async (req: Request, res: Response): Promise<Response | any> => {
     try {
         const dataCommentId = res.locals.dataCommentId;
+        const userId = res.locals.userLoggedId;
         const commentId = res.locals.commentId;
-        let limit = req.query.limit ? Number(req.query.limit) : 10;
-        let offset = req.query.offset ? Number(req.query.offset) : 0;
-        const currentUrl = req.baseUrl;
+        const limit = req.query.limit ? Number(req.query.limit) : 10;
+        const offset = req.query.offset ? Number(req.query.offset) : 0;
 
-        const { nextUrl, previousUrl, total, replies } = await replyService.getPaginatedReplyService(dataCommentId, commentId, limit, offset, currentUrl)
+        const { hasMore, nextOffset, replies } = await replyService.getPaginatedReplyService(dataCommentId, commentId, userId, limit, offset)
 
         res.status(200).send({
-            nextUrl,
-            previousUrl,
-            limit,
-            offset,
-            total,
+            hasMore,
+            nextOffset,
             replies
         });
     } catch (err: any) {
