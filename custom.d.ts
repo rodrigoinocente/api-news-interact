@@ -11,11 +11,12 @@ export interface IUser extends Document {
 
 export interface ICommentNews {
   _id: Types.ObjectId;
-  newsId: Types.ObjectId;
+  newsId?: Types.ObjectId;
   comment: IComment[];
 };
 
 interface IComment {
+  _id: Types.ObjectId;
   newsId: Types.ObjectId;
   userId: Types.ObjectId;
   content: string;
@@ -27,10 +28,14 @@ interface IComment {
 };
 
 interface Paginated {
-  nextUrl: string | null;
-  previousUrl: string | null;
-  offset: number;
-  total: number;
+  nextUrl?: string | null;
+  previousUrl?: string | null;
+  offset?: number;
+  total?: number;
+  //old-^
+  //new-v
+  hasMore?: boolean;
+  nextOffset?:number
   comments?: ICommentNews[];
   replies?: IReplyComment[];
 };
@@ -58,6 +63,15 @@ interface Like {
   userId: Types.ObjectId;
   createdAt: Date;
 };
+
+interface Reply {
+   _id: Types.ObjectId;
+  userId: Types.ObjectId;
+  content: string;
+  dataLikeId: Types.ObjectId;
+  likeCount: number;
+  createdAt: Date;
+}
 
 export interface IReplyComment {
   _id: Types.ObjectId;

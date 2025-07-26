@@ -23,28 +23,19 @@ const addCommentService = async (newsId: Types.ObjectId, userId: Types.ObjectId,
     return formattedComment[0]
 };
 
-const getPaginatedCommentsService = async (newsId: Types.ObjectId, limit: number, offset: number, currentUrl: string): Promise<Paginated> => {
-    let total: number
-    //TODO: make the total come together with the newsId
-    const comments: ICommentNews[] = await commentRepositories.commentsPipelineRepositories(newsId, offset, limit);
-    if (comments.length === 0)
-        throw new Error("There are no registered comments")
+const getPaginatedCommentsService = async (newsId: Types.ObjectId, userId: Types.ObjectId, limit: number, offset: number): Promise<Paginated> => {
+    const comments: ICommentNews[] = await commentRepositories.commentsPipelineRepositories(newsId, userId, offset, limit);
+    const totalResult = await commentRepositories.totalCommentsRepositories(newsId);
 
-    const totalComments = await commentRepositories.totalCommentsRepositories(newsId)
-    if (totalComments) total = totalComments[0].commentCount
-    else total = 10000
+    const total = totalResult[0]?.commentCount ?? 0;
 
     const next = offset + limit;
-    const nextUrl = next < total ? `${currentUrl}/commentPage/${newsId}?limit=${limit}&offset=${next}` : null;
-
-    const previous = offset - limit < 0 ? null : offset - limit;
-    const previousUrl = previous != null ? `${currentUrl}/commentPage/${newsId}?limit=${limit}&offset=${previous}` : null;
+    const hasMore = next < total ? true : false;
+    const nextOffset = next
 
     return ({
-        nextUrl,
-        previousUrl,
-        offset,
-        total,
+        hasMore,
+        nextOffset,
         comments
     });
 };
