@@ -22,7 +22,13 @@ const addReplyComment = async (req: Request, res: Response): Promise<Response | 
             return res.status(400).send({ message: err.message });
 
         if (err.message === "Failed to create reply")
-            return res.status(500).send({ message: "An unexpected error occurred" });
+            return res.status(500).send({ message: err.message });
+
+        if (err.message === "Failed to update comment")
+            return res.status(500).send({ message: err.message });
+
+        if (err.message === "Failed to retrieve the new reply")
+            return res.status(500).send({ message: err.message });
 
         return res.status(500).send({ message: "An unexpected error occurred" });
     };

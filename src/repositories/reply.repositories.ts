@@ -8,14 +8,59 @@ const createReplyCommentDataRepositories = (
 
 const updateCommentDataReplyRepositories = (
     dataCommentId: Types.ObjectId, commentId: Types.ObjectId, newDataReplyId: Types.ObjectId): Promise<ICommentNews | null> =>
-    CommentModel.findOneAndUpdate({ _id: dataCommentId, "comment._id": commentId }, { $set: { "comment.$.dataReplyId": newDataReplyId } });
+    CommentModel.findOneAndUpdate({ _id: dataCommentId, "comment._id": commentId }, { $set: { "comment.$.dataReplyId": newDataReplyId } }, { projection: { _id: 1 } });
 
 const addReplyCommentDataRepositories = (
     commentDataReplyId: Types.ObjectId, userId: Types.ObjectId, content: string): Promise<IReplyComment | null> =>
-    ReplyCommentModel.findOneAndUpdate({ _id: commentDataReplyId }, { $push: { reply: [{ userId, content }] } }, { select: "_id" });
+    ReplyCommentModel.findOneAndUpdate({ _id: commentDataReplyId },
+        { $push: { reply: [{ userId, content }] } },
+        {
+            new: true,
+            projection: {
+                _id: 1,
+                reply: { $slice: -1 }
+            },
+        }
+    );
 
-const replyCommentsPipelineRepositories = (dataReplyCommentId: Types.ObjectId, offset: number, limit: number): Promise<IReplyComment[] | []> => {
+const findOnePreplyRepositories = async (dataReplyId: Types.ObjectId, replyId: Types.ObjectId) => {
     return ReplyCommentModel.aggregate([
+        { $match: { _id: dataReplyId } },
+        { $unwind: "$reply" },
+        { $match: { "reply._id": replyId } },
+        {
+            $lookup: {
+                from: "users",
+                localField: "reply.userId",
+                foreignField: "_id",
+                as: "user"
+            }
+        },
+        { $unwind: "$user" },
+        {
+            $project: {
+                _id: 0,
+                reply: [{
+                    _id: "$reply._id",
+                    content: "$reply.content",
+                    dataLikeId: "$reply.dataLikeId",
+                    likeCount: "$reply.likeCount",
+                    createdAt: "$reply.createdAt",
+                    documentId: "$_id",
+                    user: {
+                        _id: "$user._id",
+                        username: "$user.username",
+                        profilePicture: "$user.profilePicture"
+                    }
+                }]
+            }
+        }
+
+    ])
+};
+
+const replyCommentsPipelineRepositories = (dataReplyCommentId: Types.ObjectId, userId: Types.ObjectId, offset: number, limit: number): Promise<IReplyComment[] | []> =>
+    ReplyCommentModel.aggregate([
         { $match: { _id: dataReplyCommentId } },
         { $unwind: { path: "$reply" } },
         { $sort: { "reply.createdAt": -1 } },

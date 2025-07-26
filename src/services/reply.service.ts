@@ -10,21 +10,29 @@ const addReplyCommentService = async (dataCommentId: Types.ObjectId, commentId: 
     const comment: ICommentNews | null = await commentRepositories.findCommentByIdRepositories(dataCommentId, commentId);
     if (!comment) throw new Error("Comment not found")
 
+    let doc
     const commentDataReplyId = comment.comment[0].dataReplyId;
+
     if (!commentDataReplyId) {
         const newDataReply = await replyRepositories.createReplyCommentDataRepositories(dataCommentId, commentId, userId, content);
         if (!newDataReply) throw new Error("Failed to create reply")
 
-        const updateCommentDataReply = await replyRepositories.updateCommentDataReplyRepositories(dataCommentId, commentId, newDataReply._id);
-        if (!updateCommentDataReply) throw new Error("Failed to create reply")
+        doc = newDataReply
 
-        return newDataReply;
+        const updateCommentDataReply = await replyRepositories.updateCommentDataReplyRepositories(dataCommentId, commentId, newDataReply._id);
+        if (!updateCommentDataReply) throw new Error("Failed to update comment")
+
     } else {
         const newReply = await replyRepositories.addReplyCommentDataRepositories(commentDataReplyId, userId, content);
-        if (!newReply) throw new Error("Failed to add response")
+        if (!newReply) throw new Error("Failed to create reply")
 
-        return newReply;
+        doc = newReply
     }
+
+    const formated = await replyRepositories.findOnePreplyRepositories(doc._id, doc.reply[0]._id)
+    if (!formated) throw new Error("Failed to retrieve the new reply");
+
+    return formated[0]
 };
 
 const getPaginatedReplyService = async (dataCommentId: Types.ObjectId, commentId: Types.ObjectId, limit: number, offset: number, currentUrl: string): Promise<Paginated> => {
